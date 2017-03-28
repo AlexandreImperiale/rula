@@ -1,0 +1,9 @@
+[package]
+name = "rula"
+version = "0.1.0"
+authors = ["AlexandreImperiale <https://github.com/AlexandreImperiale>"]
+description = "Linear algebra library in rust."
+homepage = "https://alexandreimperiale.github.io/rula/"
+repository = "https://github.com/AlexandreImperiale/rula"
+
+[dependencies]
