@@ -14,8 +14,8 @@ use super::traits::*;
 /// let mut u = vec![1.0, 2.0, 3.0];
 /// let mut v = copy(&u);
 /// v[0] = 10.0;
-/// assert!(u == [1.0, 2.0, 3.]);
-/// assert!(v == [10., 2.0, 3.]);
+/// assert_eq!(u, [1.0, 2.0, 3.]);
+/// assert_eq!(v, [10., 2.0, 3.]);
 /// ```
 pub fn copy<T>(u: &Vec<T>) -> Vec<T>
     where T: Clone
@@ -34,7 +34,7 @@ pub fn copy<T>(u: &Vec<T>) -> Vec<T>
 ///
 /// let mut u = vec![1.0, -2.0, 3.0];
 /// let mut v = filtered_copy(&u, |&x| x > 0.);
-/// assert!(v == [1.0, 3.0]);
+/// assert_eq!(v, [1.0, 3.0]);
 /// ```
 pub fn filtered_copy<T, P>(u: &Vec<T>, predicate: P) -> Vec<T>
     where T: Clone, P: FnMut(&T) -> bool
@@ -53,7 +53,7 @@ pub fn filtered_copy<T, P>(u: &Vec<T>, predicate: P) -> Vec<T>
 ///
 /// let mut v = vec![1.0, 2.0, 3.0];
 /// scale(&mut v, 2.0);
-/// assert!(v == [2., 4., 6.])
+/// assert_eq!(v, [2., 4., 6.])
 /// ```
 pub fn scale<T>(u: &mut Vec<T>, a: T)
     where T: IsNumerical<T>
@@ -74,7 +74,7 @@ pub fn scale<T>(u: &mut Vec<T>, a: T)
 ///
 /// let mut v = vec![1, 2, 3];
 /// zero(&mut v);
-/// assert!(v == [0, 0, 0])
+/// assert_eq!(v, [0, 0, 0])
 /// ```
 pub fn zero<T>(u: &mut Vec<T>)
     where T: IsNumerical<T>
@@ -97,9 +97,9 @@ pub fn zero<T>(u: &mut Vec<T>)
 ///
 /// let v = vec![1, 2, 3];
 /// let u = vec![0, 6, 2];
-/// assert!(dot(&u, &v) == dot(&v, &u));
-/// assert!(dot(&u, &v) == 18);
-/// assert!(u == [0, 6, 2])
+/// assert_eq!(dot(&u, &v), dot(&v, &u));
+/// assert_eq!(dot(&u, &v), 18);
+/// assert_eq!(u, [0, 6, 2])
 /// ```
 ///
 /// The dot operation being generic, it can also be applied to vector of floats. If one of a vector
@@ -110,8 +110,8 @@ pub fn zero<T>(u: &mut Vec<T>)
 ///
 /// let v = vec![1.0, 2.0, 3.0, 4.0];
 /// let u = vec![0.0, 6.0, 2.0];
-/// assert!(dot(&u, &v) == dot(&v, &u));
-/// assert!(dot(&u, &v) == 18.0);
+/// assert_eq!(dot(&u, &v), dot(&v, &u));
+/// assert_eq!(dot(&u, &v), 18.0);
 /// ```
 pub fn dot<U>(u: &Vec<U>, v: &Vec<U>) -> U
     where U: IsNumerical<U>
@@ -129,7 +129,7 @@ pub fn dot<U>(u: &Vec<U>, v: &Vec<U>) -> U
 /// use rula::vector::*;
 ///
 /// let u = vec![1.0, 2.0, 3.0];
-/// assert!(square_norm(&u) == 14.0);
+/// assert_eq!(square_norm(&u), 14.0);
 /// ```
 pub fn square_norm<T>(u: &Vec<T>) -> T
     where T: IsNumerical<T>
@@ -146,7 +146,7 @@ pub fn square_norm<T>(u: &Vec<T>) -> T
 /// use rula::vector::*;
 ///
 /// let u = vec![1, 2, 3];
-/// assert!(norm(&u) == (dot(&u, &u) as f64).sqrt());
+/// assert_eq!(norm(&u), (dot(&u, &u) as f64).sqrt());
 /// ```
 pub fn norm<T>(u: &Vec<T>) -> f64
     where T: IsNumerical<T> + Into<f64>
@@ -169,8 +169,8 @@ pub fn norm<T>(u: &Vec<T>) -> f64
 /// let u = vec![1, 2];
 /// let v = vec![2, 9, 1];
 /// let w = lin_com(2, &u, 1, &v);
-/// assert!(w.len() == 2);
-/// assert!(w == [4, 13]);
+/// assert_eq!(w.len(), 2);
+/// assert_eq!(w, [4, 13]);
 /// ```
 pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
     where T: IsNumerical<T>
@@ -195,7 +195,7 @@ pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
 /// let mut u = vec![1, 2];
 /// let v = vec![2, 9, 1];
 /// mlt_add(&mut u, 2, &v);
-/// assert!(u == [5, 20]);
+/// assert_eq!(u, [5, 20]);
 /// ```
 ///
 /// In this second example, input types are different.
@@ -206,7 +206,7 @@ pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
 /// let mut u = vec![1.1, 2.0];
 /// let v = vec![2, 9, 1];
 /// mlt_add(&mut u, 2, &v);
-/// assert!(u == [5.1, 20.0]);
+/// assert_eq!(u, [5.1, 20.0]);
 /// ```
 pub fn mlt_add<U, A, V>(u: &mut Vec<U>, a: A, v: &Vec<V>)
     where U: IsNumerical<U>, A: IsNumerical<A> + Into<U>, V: IsNumerical<V> + Into<U>

@@ -3,3 +3,6 @@ pub mod traits;
 
 /// Algebraic operations on vectors.
 pub mod vector;
+
+/// Definition of full matrices.
+pub mod full_matrix;
