@@ -1,7 +1,86 @@
-use std::cmp::*;
 use std::convert::*;
+use std::iter::*;
 use std::vec::*;
 use super::traits::*;
+
+/// Creating new vector by copying input resource.
+///
+/// * `u` - Input vector to be copied.
+///
+/// # Examples
+/// ```
+/// use rula::vector::*;
+///
+/// let mut u = vec![1.0, 2.0, 3.0];
+/// let mut v = copy(&u);
+/// v[0] = 10.0;
+/// assert!(u == [1.0, 2.0, 3.]);
+/// assert!(v == [10., 2.0, 3.]);
+/// ```
+pub fn copy<T>(u: &Vec<T>) -> Vec<T>
+    where T: Clone
+{
+    u.iter().cloned().collect()
+}
+
+/// Creating new vector by copying input resource filtered using input predicate.
+///
+/// * `u` - Input vector to be copied.
+/// * `f` - Filter to be applied. Return true if element should be copied, false otherwise.
+///
+/// # Examples
+/// ```
+/// use rula::vector::*;
+///
+/// let mut u = vec![1.0, -2.0, 3.0];
+/// let mut v = filtered_copy(&u, |&x| x > 0.);
+/// assert!(v == [1.0, 3.0]);
+/// ```
+pub fn filtered_copy<T, P>(u: &Vec<T>, predicate: P) -> Vec<T>
+    where T: Clone, P: FnMut(&T) -> bool
+{
+    u.iter().cloned().filter(predicate).collect()
+}
+
+/// Scaling input vector with single value.
+///
+/// * `u` - Input vector to be scaled.
+/// * `a` - Scaling coefficient.
+///
+/// # Examples
+/// ```
+/// use rula::vector::*;
+///
+/// let mut v = vec![1.0, 2.0, 3.0];
+/// scale(&mut v, 2.0);
+/// assert!(v == [2., 4., 6.])
+/// ```
+pub fn scale<T>(u: &mut Vec<T>, a: T)
+    where T: IsNumerical<T>
+{
+    for e in u
+    {
+        *e *= a;
+    }
+}
+
+/// Set input vector to zero.
+///
+/// * `u` - Input vector to be zeroed.
+///
+/// # Examples
+/// ```
+/// use rula::vector::*;
+///
+/// let mut v = vec![1, 2, 3];
+/// zero(&mut v);
+/// assert!(v == [0, 0, 0])
+/// ```
+pub fn zero<T>(u: &mut Vec<T>)
+    where T: IsNumerical<T>
+{
+    scale(u, T::zero())
+}
 
 /// Computing dot product between two vectors. The operations is performed up to the smallest range
 /// shared by the two input vectors. Input vector are assumed to be of the same type.
@@ -37,48 +116,8 @@ use super::traits::*;
 pub fn dot<U>(u: &Vec<U>, v: &Vec<U>) -> U
     where U: IsNumerical<U>
 {
-    u.iter().zip(v.iter()).fold(U::zero(), |res, (&x, &y)| res + x * y.into())
-}
-
-/// The operations is performed up to the smallest range shared by the two input vectors.
-/// Input vectors may not be of the same type, however they need to satisfy a conversion trait into
-/// the type of the value bearing the result.
-///
-/// * `d` - Value bearing the result of the dot product.
-/// * `u` - First vector.
-/// * `v` - Second vector.
-///
-/// # Examples
-///
-/// In this first example, the place to store the result has the same type as the input vectors;
-///
-/// ```
-/// use rula::vector::*;
-///
-/// let v = vec![1.0, 2.0, 3.0];
-/// let u = vec![0.0, 6.0, 2.0];
-/// let mut d : f64 = 0.;
-/// dot_in(&mut d, &u, &v);
-/// assert!(dot(&u, &v) == d);
-/// ```
-///
-/// In this second example, the place to store the result is larger that the size of the type of
-/// the input vectors values.
-///
-/// ```
-/// use rula::vector::*;
-///
-/// let v = vec![1, 2, 3];
-/// let u = vec![0, 6, 2];
-/// let mut d : f64 = 0.;
-/// dot_in(&mut d, &u, &v);
-/// assert!(dot(&u, &v) == d as i32);
-/// ```
-pub fn dot_in<D, U, V>(d: &mut D, u: &Vec<U>, v: &Vec<V>)
-    where D: IsNumerical<D>, U: IsNumerical<U> + Into<D>, V: IsNumerical<V> + Into<D>
-{
-    *d = D::zero();
-    u.iter().zip(v.iter()).fold((), |(), (&x, &y)| *d += x.into() * y.into())
+    let uv_iter = u.iter().zip(v.iter());
+    uv_iter.fold(U::zero(), |res, (&x, &y)| res + x * y)
 }
 
 /// Computing square norm of a vector.
@@ -136,11 +175,44 @@ pub fn norm<T>(u: &Vec<T>) -> f64
 pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
     where T: IsNumerical<T>
 {
-    let sz = min(u.len(), v.len());
-    let mut w = Vec::with_capacity(sz);
-    for i in 0..sz
+    let uv_iter = u.iter().zip(v.iter());
+    uv_iter.map(|(&x, &y)| a * x + b * y).collect()
+}
+
+/// Implementation of the mlt add operation, ie u <- u + a * v.
+///
+/// * `u` - first input vector bearing the result.
+/// * `a` - coefficient applied to second input vector,
+/// * `v` - second input vector.
+///
+/// # Examples
+///
+/// In this first example input types are identical.
+///
+/// ```
+/// use rula::vector::*;
+///
+/// let mut u = vec![1, 2];
+/// let v = vec![2, 9, 1];
+/// mlt_add(&mut u, 2, &v);
+/// assert!(u == [5, 20]);
+/// ```
+///
+/// In this second example, input types are different.
+///
+/// ```
+/// use rula::vector::*;
+///
+/// let mut u = vec![1.1, 2.0];
+/// let v = vec![2, 9, 1];
+/// mlt_add(&mut u, 2, &v);
+/// assert!(u == [5.1, 20.0]);
+/// ```
+pub fn mlt_add<U, A, V>(u: &mut Vec<U>, a: A, v: &Vec<V>)
+    where U: IsNumerical<U>, A: IsNumerical<A> + Into<U>, V: IsNumerical<V> + Into<U>
+{
+    for (eu, ev) in u.iter_mut().zip(v.iter())
     {
-        w.push(a * u[i] + b * v[i]);
+        *eu += a.into() * (*ev).into();
     }
-    return w; 
 }
