@@ -142,5 +142,5 @@ pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
     {
         w.push(a * u[i] + b * v[i]);
     }
-    return w;
+    return w; 
 }
