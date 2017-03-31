@@ -1,4 +1,6 @@
 use super::traits::*;
+use std::iter::*;
+use std::slice::*;
 
 /// Definition of full matric type.
 /// The ordering by default is row-major.
@@ -28,6 +30,25 @@ impl<T> FullMatrix<T> where T: IsNumerical<T> {
         self.data[i * self.ncol + j]
     }
 
+    /// Accessing iterator over a row.
+    ///
+    /// * `i` - row index.
+    ///
+    /// # Examples
+    /// ```
+    /// use rula::full_matrix::*;
+    ///
+    /// let m : FullMatrix<f64> = FullMatrix::zero(1, 2);
+    /// for v in m.iter_over_row(0)
+    /// {
+    ///     assert_eq!(*v, 0.);
+    /// }
+    /// ```
+    pub fn iter_over_row<'a>(&'a self, i: usize) -> Take<Skip<Iter<'a, T>>>
+    {
+        self.data.iter().skip(i * self.ncol).take(self.ncol)
+    }
+
     /// Creating zero matrix as full matrix.
     ///
     /// * `nrow` - number of rows.
@@ -35,7 +56,16 @@ impl<T> FullMatrix<T> where T: IsNumerical<T> {
     ///
     /// # Examples
     /// ```
+    /// use rula::full_matrix::*;
     ///
+    /// let m : FullMatrix<f64> = FullMatrix::zero(1, 2);
+    /// for i in 0..m.nrow
+    /// {
+    ///     for v in m.iter_over_row(i)
+    ///     {
+    ///         assert_eq!(*v, 0.);
+    ///     }
+    /// }
     /// ```
     pub fn zero(nrow: usize, ncol: usize) -> Self
     {
