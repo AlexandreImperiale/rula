@@ -56,7 +56,7 @@ pub fn filtered_copy<T, P>(u: &Vec<T>, predicate: P) -> Vec<T>
 /// assert_eq!(v, [2., 4., 6.])
 /// ```
 pub fn scale<T>(u: &mut Vec<T>, a: T)
-    where T: IsNumerical<T>
+    where T: IsField<T>
 {
     for e in u
     {
@@ -77,7 +77,7 @@ pub fn scale<T>(u: &mut Vec<T>, a: T)
 /// assert_eq!(v, [0, 0, 0])
 /// ```
 pub fn zero<T>(u: &mut Vec<T>)
-    where T: IsNumerical<T>
+    where T: IsField<T>
 {
     scale(u, T::zero())
 }
@@ -114,7 +114,7 @@ pub fn zero<T>(u: &mut Vec<T>)
 /// assert_eq!(dot(&u, &v), 18.0);
 /// ```
 pub fn dot<U>(u: &Vec<U>, v: &Vec<U>) -> U
-    where U: IsNumerical<U>
+    where U: IsField<U>
 {
     let uv_iter = u.iter().zip(v.iter());
     uv_iter.fold(U::zero(), |res, (&x, &y)| res + x * y)
@@ -132,7 +132,7 @@ pub fn dot<U>(u: &Vec<U>, v: &Vec<U>) -> U
 /// assert_eq!(square_norm(&u), 14.0);
 /// ```
 pub fn square_norm<T>(u: &Vec<T>) -> T
-    where T: IsNumerical<T>
+    where T: IsField<T>
 {
     dot(u, u)
 }
@@ -149,7 +149,7 @@ pub fn square_norm<T>(u: &Vec<T>) -> T
 /// assert_eq!(norm(&u), (dot(&u, &u) as f64).sqrt());
 /// ```
 pub fn norm<T>(u: &Vec<T>) -> f64
-    where T: IsNumerical<T> + Into<f64>
+    where T: IsField<T> + Into<f64>
 {
     (square_norm(u).into()).sqrt()
 }
@@ -173,7 +173,7 @@ pub fn norm<T>(u: &Vec<T>) -> f64
 /// assert_eq!(w, [4, 13]);
 /// ```
 pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
-    where T: IsNumerical<T>
+    where T: IsField<T>
 {
     let uv_iter = u.iter().zip(v.iter());
     uv_iter.map(|(&x, &y)| a * x + b * y).collect()
@@ -209,7 +209,7 @@ pub fn lin_com<T>(a: T, u: &Vec<T>, b: T, v: &Vec<T>) -> Vec<T>
 /// assert_eq!(u, [5.1, 20.0]);
 /// ```
 pub fn mlt_add<U, A, V>(u: &mut Vec<U>, a: A, v: &Vec<V>)
-    where U: IsNumerical<U>, A: IsNumerical<A> + Into<U>, V: IsNumerical<V> + Into<U>
+    where U: IsField<U>, A: IsField<A> + Into<U>, V: IsField<V> + Into<U>
 {
     for (eu, ev) in u.iter_mut().zip(v.iter())
     {

@@ -4,14 +4,14 @@ use std::slice::*;
 
 /// Definition of full matric type.
 /// The ordering by default is row-major.
-pub struct FullMatrix<T> where T: IsNumerical<T> {
+pub struct FullMatrix<T> where T: IsField<T> {
     /// Associated data.
     data: Vec<T>,
     /// Associated sizes.
     pub nrow: usize, pub ncol: usize,
 }
 
-impl<T> FullMatrix<T> where T: IsNumerical<T> {
+impl<T> FullMatrix<T> where T: IsField<T> {
 
     /// Accessing matrix value from its row and column index.
     ///

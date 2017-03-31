@@ -18,8 +18,8 @@ impl Zero for f32 { fn zero() -> Self { 0. } }
 impl Zero for f64 { fn zero() -> Self { 0. } }
 
 /// Definition of traits for vector components.
-pub trait IsNumerical<T> : Zero + Add<Output = T> + AddAssign + Clone + Copy + Mul<Output = T> + MulAssign {}
+pub trait IsField<T> : Zero + Add<Output = T> + AddAssign + Clone + Copy + Mul<Output = T> + MulAssign {}
 
 /// Implementation of trait for vector components.
-impl<T> IsNumerical<T> for T
+impl<T> IsField<T> for T
     where T: Zero + Add<Output = T> + AddAssign + Clone + Copy + Mul<Output = T> + MulAssign {}
