@@ -3,48 +3,38 @@ use std::iter::*;
 use std::vec::*;
 use super::traits::*;
 
-/// Creating new vector by copying input resource.
+/// Creating new vector by copying data designated by input iterator.
 ///
-/// * `u` - Input vector to be copied.
+/// * `it` - Input iterator used to iterate over data to be copied.
 ///
 /// # Examples
 /// ```
 /// use rula::vector::*;
 ///
 /// let mut u = vec![1.0, 2.0, 3.0];
-/// let mut v = copy(&u);
-/// v[0] = 10.0;
+/// let mut v = copy(u.iter());
 /// assert_eq!(u, [1.0, 2.0, 3.]);
-/// assert_eq!(v, [10., 2.0, 3.]);
+/// assert_eq!(v, [1.0, 2.0, 3.]);
 /// ```
-pub fn copy<T>(u: &Vec<T>) -> Vec<T>
-    where T: Clone
-{
-    u.iter().cloned().collect()
-}
-
-/// Creating new vector by copying input resource filtered using input predicate.
 ///
-/// * `u` - Input vector to be copied.
-/// * `f` - Filter to be applied. Return true if element should be copied, false otherwise.
-///
-/// # Examples
 /// ```
 /// use rula::vector::*;
 ///
 /// let mut u = vec![1.0, -2.0, 3.0];
-/// let mut v = filtered_copy(&u, |&x| x > 0.);
-/// assert_eq!(v, [1.0, 3.0]);
+/// let it = u.iter().filter(|&x| *x > 0.);
+/// let mut v = copy(it);
+/// assert_eq!(u, [1.0, -2.0, 3.]);
+/// assert_eq!(v, [1.0, 3.]);
 /// ```
-pub fn filtered_copy<T, P>(u: &Vec<T>, predicate: P) -> Vec<T>
-    where T: Clone, P: FnMut(&T) -> bool
+pub fn copy<'a, I, T>(it: I) -> Vec<T>
+    where I: Iterator<Item = &'a T>, T: Clone + 'a
 {
-    u.iter().cloned().filter(predicate).collect()
+    it.cloned().collect()
 }
 
-/// Scaling input vector with single value.
+/// Scaling data pointed to by mutable iterator with single value.
 ///
-/// * `u` - Input vector to be scaled.
+/// * `it` - Input mutable iterator pointed to data to be scaled.
 /// * `a` - Scaling coefficient.
 ///
 /// # Examples
@@ -52,34 +42,42 @@ pub fn filtered_copy<T, P>(u: &Vec<T>, predicate: P) -> Vec<T>
 /// use rula::vector::*;
 ///
 /// let mut v = vec![1.0, 2.0, 3.0];
-/// scale(&mut v, 2.0);
+/// scale(v.iter_mut(), 2.0);
 /// assert_eq!(v, [2., 4., 6.])
 /// ```
-pub fn scale<T>(u: &mut Vec<T>, a: T)
-    where T: IsField<T>
+///
+/// ```
+/// use rula::vector::*;
+///
+/// let mut v = vec![1.0, -2.0, 3.0];
+/// scale(v.iter_mut().filter(|x| **x > 0.), 2.0);
+/// assert_eq!(v, [2., -2., 6.])
+/// ```
+pub fn scale<'a, I, T>(it: I, a: T)
+    where I: Iterator<Item = &'a mut T>, T: IsField<T> + 'a
 {
-    for e in u
+    for e in it
     {
         *e *= a;
     }
 }
 
-/// Set input vector to zero.
+/// Iterate over data using input mutable iterator to set data to zero.
 ///
-/// * `u` - Input vector to be zeroed.
+/// * `it` - Input mutable iterator to iterate over data to be zeroed.
 ///
 /// # Examples
 /// ```
 /// use rula::vector::*;
 ///
 /// let mut v = vec![1, 2, 3];
-/// zero(&mut v);
+/// zero(v.iter_mut());
 /// assert_eq!(v, [0, 0, 0])
 /// ```
-pub fn zero<T>(u: &mut Vec<T>)
-    where T: IsField<T>
+pub fn zero<'a, I, T>(it: I)
+    where I: Iterator<Item = &'a mut T>, T: IsField<T> + 'a
 {
-    scale(u, T::zero())
+    scale(it, T::zero())
 }
 
 /// Computing dot product between two vectors. The operations is performed up to the smallest range
